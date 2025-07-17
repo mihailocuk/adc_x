@@ -1,4 +1,4 @@
-Microchip Technology Inc, v¿Än
+Microchip Technology Inc, v¿Äo
 
 Tool Name:
   c:\program files (x86)\microchip\xc16\v1.21\bin\bin\..\bin/elf-ld.exe
@@ -6,7 +6,7 @@ Tool Name:
 Command:
   -p30F4013 \
   -o \
-  dist/default/production/adc.X.production.elf \
+  dist/default/production/adc_x.production.elf \
   -Lc:/program files (x86)/microchip/xc16/v1.21/bin/bin/.. \
   -Lc:/program files (x86)/microchip/xc16/v1.21/bin/bin/../../lib \
   -Lc:/program files (x86)/microchip/xc16/v1.21/bin/bin/../../lib/PIC24E \
@@ -36,7 +36,7 @@ Command:
   --stackguard=16 \
   --no-force-link \
   --smart-io \
-  -Map=dist/default/production/adc.X.production.map \
+  -Map=dist/default/production/adc_x.production.map \
   --report-mem \
   -start-group \
   --library=fx-elf \
@@ -256,10 +256,10 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x164b
+.debug_info       0x000000       0x15e9
  *(.debug_info)
- .debug_info      0x000000        0xc30 build/default/production/ADCmain.o
- .debug_info      0x000c30        0xa1b build/default/production/adc.o
+ .debug_info      0x000000        0xbff build/default/production/ADCmain.o
+ .debug_info      0x000bff        0x9ea build/default/production/adc.o
  *(.gnu.linkonce.wi.*)
 
 .debug_abbrev     0x000000        0x1fa
@@ -1132,7 +1132,7 @@ LOAD c:/program files (x86)/microchip/xc16/v1.21/bin/bin/../../lib\libpic30-elf.
 LOAD c:/program files (x86)/microchip/xc16/v1.21/bin/bin/../../lib\libm-elf.a
 LOAD c:/program files (x86)/microchip/xc16/v1.21/bin/bin/../../lib\libc-elf.a
 END GROUP
-OUTPUT(dist/default/production/adc.X.production.elf elf32-pic30)
+OUTPUT(dist/default/production/adc_x.production.elf elf32-pic30)
 LOAD default_isr
 LOAD data_init
 

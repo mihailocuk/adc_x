@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADCmain.c adc.c
+SOURCEFILES_QUOTED_IF_SPACED=ADCmain.c adc.c timer1.c timer2.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADCmain.o.d ${OBJECTDIR}/adc.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ADCmain.o.d ${OBJECTDIR}/adc.o.d ${OBJECTDIR}/timer1.o.d ${OBJECTDIR}/timer2.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o
+OBJECTFILES=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
 
 # Source Files
-SOURCEFILES=ADCmain.c adc.c
+SOURCEFILES=ADCmain.c adc.c timer1.c timer2.c
 
 
 
@@ -107,6 +107,18 @@ ${OBJECTDIR}/adc.o: adc.c  .generated_files/flags/default/16f1cf5b4830c40d98df7f
 	@${RM} ${OBJECTDIR}/adc.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  adc.c  -o ${OBJECTDIR}/adc.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/adc.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
+${OBJECTDIR}/timer1.o: timer1.c  .generated_files/flags/default/4575c57620cbcc87b1dbb766673da40c581b6742 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/timer1.o.d 
+	@${RM} ${OBJECTDIR}/timer1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  timer1.c  -o ${OBJECTDIR}/timer1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer1.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/timer2.o: timer2.c  .generated_files/flags/default/43591a46f3d51d6f83683eb953f875753ce53cd8 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/timer2.o.d 
+	@${RM} ${OBJECTDIR}/timer2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  timer2.c  -o ${OBJECTDIR}/timer2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
 else
 ${OBJECTDIR}/ADCmain.o: ADCmain.c  .generated_files/flags/default/a9111ac2de25f55b999986992e11f737e8975ec6 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 
@@ -119,6 +131,18 @@ ${OBJECTDIR}/adc.o: adc.c  .generated_files/flags/default/af2f08f7323b5479760ab4
 	@${RM} ${OBJECTDIR}/adc.o.d 
 	@${RM} ${OBJECTDIR}/adc.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  adc.c  -o ${OBJECTDIR}/adc.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/adc.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/timer1.o: timer1.c  .generated_files/flags/default/41c631ef8fdf061465792d2717f4beb269d0ecce .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/timer1.o.d 
+	@${RM} ${OBJECTDIR}/timer1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  timer1.c  -o ${OBJECTDIR}/timer1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer1.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/timer2.o: timer2.c  .generated_files/flags/default/10f33d5b852a11a6c50b8db0391dd2c770cc0c5e .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/timer2.o.d 
+	@${RM} ${OBJECTDIR}/timer2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  timer2.c  -o ${OBJECTDIR}/timer2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer2.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
 endif
 

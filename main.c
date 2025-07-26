@@ -7,24 +7,49 @@
 #include <stdio.h>               // Standard I/O
 #include <stdlib.h>              // Standard library (EXIT_SUCCESS)
 #include <p30fxxxx.h>            // Device-specific register definitions
-#include "adc.h"                // ADC initialization and configuration (external file)
-#include "timer1.h"             // Timer1 control (external file)
-#include "timer2.h"             // Timer2 control (external file)
+#include "adc.h"                // ADC initialization and configuration
+#include "timer1.h"             // Timer1 control
+#include "timer2.h"             // Timer2 control
+#include "buzzer.h"             // Buzzer control
 
-// CONFIGURATION BITS
-// XT Oscillator with PLLx4 configuration:
-// - XT: Uses external crystal oscillator (e.g., 10 MHz)
-// - PLLx4: Multiplies the input clock by 4 -> Fosc = 10 MHz × 4 = 40 MHz
-// - Fosc (system clock) = 40 MHz
-// - Fcy (instruction cycle clock) = Fosc / 4 = 10 MHz
-//   → Each instruction cycle takes 100 ns
-//   → This frequency affects UART baud rate, timers, ADC sampling, etc.
-_FOSC(CSW_FSCM_OFF & XT_PLL4);  // Oscillator configuration
-_FWDT(WDT_OFF);                 // Watchdog timer OFF
+/***************************************************************************
+ * Clock Explanation for dsPIC33 (XT + PLL4 Configuration)
+ *
+ * Fxt  = 10 MHz      → External crystal oscillator
+ * PLL  = ×4          → Multiplies Fxt → Fosc = 10 MHz × 4 = 40 MHz
+ * Fcy  = Fosc / 4    → Instruction cycle clock = 40 MHz / 4 = 10 MHz
+ *
+ * Why Fcy = Fosc / 4?
+ * --------------------
+ * - The dsPIC CPU uses a 4-stage instruction pipeline:
+ *     1. Fetch
+ *     2. Decode
+ *     3. Read
+ *     4. Execute
+ *   → One instruction completes every 4 system clock cycles (Fosc),
+ *     which defines the instruction clock: Fcy = Fosc / 4
+ *
+ * - Fcy is used by:
+ *     • Timers (prescalers, overflow rates)
+ *     • UART (baud rate calculations)
+ *     • ADC sampling and conversion timing
+ *     • Other peripherals relying on instruction-rate timing
+ *
+ * - Fixed division by 4 ensures:
+ *     • Predictable timing formulas
+ *     • Compatibility with older PIC devices
+ *
+ * Example:
+ *   - Baud rate = Fcy / (16 × UxBRG)
+ *   - Timer delay = (PRx + 1) / Fcy
+ ***************************************************************************/
+_FOSC(CSW_FSCM_OFF & XT_PLL4);  // Configure oscillator: XT mode with 4× PLL
+_FWDT(WDT_OFF);                 // Disable Watchdog Timer
 
-// Global variables for timing
-unsigned int counter_ms = 0;     // Millisecond counter - timer 1 frequency define in main function with initTIMER1(10000)
-unsigned int counter_us = 0;     // Microsecond counter - timer 2 frequency define in main function with initTIMER2(100)
+// Global variables for timing (updated by Timer1 and Timer2 ISRs)
+unsigned int counter_ms = 0;  // Millisecond counter (Timer1 must be initialized with initTIMER1(10000))
+unsigned int counter_us = 0;  // Microsecond counter (Timer2 must be initialized with initTIMER2(100))
+
 
 // Timer1 ISR - triggered every 1ms
 void __attribute__((__interrupt__)) _T1Interrupt(void) {
@@ -41,23 +66,27 @@ void __attribute__((__interrupt__)) _T2Interrupt(void) {
 }
 
 // Blocking delay using ms counter
-void Delay_ms(int vreme) {
+void Delay_ms(int time) {
     counter_ms = 0;
-    while (counter_ms < vreme);
+    while (counter_ms < time);
 }
 
 // Blocking delay using us counter
-void Delay_us(int vreme) {
+void Delay_us(int time) {
     counter_us = 0;
-    while (counter_us < vreme);
+    while (counter_us < time);
 }
 
 // Initialize pins RB6, RB7 for servo control
 void pinInit() {
+    // SERVO pins initialization
     ADPCFGbits.PCFG6 = 1;       // Set RB6 as digital
     ADPCFGbits.PCFG7 = 1;       // Set RB7 as digital
     TRISBbits.TRISB6 = 0;       // RB6 as output
     TRISBbits.TRISB7 = 0;       // RB7 as output
+
+    // BUZZER pin initialization
+    TRISAbits.TRISA11 = 0;      // A11 as output
 }
 
 // SERVO control functions (by PWM simulation using delays)
@@ -89,15 +118,67 @@ void servo_door_180() {
     Delay_ms(18);
 }
 
-// Buzzer function (square wave generation using toggling)
-void buzzer() {
-    int j, ton, duz;
-    for (j = 0; j < 30; j++) {
-        for (ton = 0; ton < 70; ton++) {
-            LATAbits.LATA11 = ~LATAbits.LATA11;  // Toggle buzzer pin
-            for (duz = 0; duz < 100; duz++);     // Short delay
+/***************************************************************************
+* Function Name    : playBuzzerAlert
+* Description      : Generates a beeping sound by toggling pin RA11 at
+*                    a fixed frequency. Produces 30 short bursts.
+* Parameters       : None
+* Return Value     : None
+* Notes            :
+*   - The tone is created by toggling the pin at a fixed rate (square wave).
+*   - A short delay between toggles simulates frequency.
+*   - RA11 pin must be configured as output beforehand.
+***************************************************************************/
+void playBuzzerAlert(void) {
+    const int numberOfBeeps = 30;
+    const int togglesPerBeep = 70;
+    const int toggleDelayCycles = 100;  // Roughly controls pitch
+    const int interBeepDelay_ms = 50;
+
+    for (int beep = 0; beep < numberOfBeeps; beep++) {
+        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
+            LATAbits.LATA11 ^= 1;                   // Toggle RA11 pin
+            for (int delayCycle = 0; delayCycle < toggleDelayCycles; delayCycle++);  // Short delay loop
         }
-        Delay_ms(50);
+        Delay_ms(interBeepDelay_ms);                // Delay between beeps
+    }
+}
+
+/***************************************************************************
+* Function Name    : playBuzzerApprove
+* Description      : Generates two short beeps at normal pitch to indicate approval.
+***************************************************************************/
+void playBuzzerApprove(void) {
+    const int numberOfBeeps = 2;
+    const int togglesPerBeep = 70;
+    const int toggleDelayCycles = 100;  // Normal pitch
+    const int interBeepDelay_ms = 50;
+
+    for (int beep = 0; beep < numberOfBeeps; beep++) {
+        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
+            LATAbits.LATA11 ^= 1;                    // Toggle RA11 pin
+            for (int delayCycle = 0; delayCycle < toggleDelayCycles; delayCycle++);  // Pitch control
+        }
+        Delay_ms(interBeepDelay_ms);
+    }
+}
+
+/***************************************************************************
+* Function Name    : playBuzzerDecline
+* Description      : Generates three short beeps at higher pitch to indicate decline.
+***************************************************************************/
+void playBuzzerDecline(void) {
+    const int numberOfBeeps = 3;
+    const int togglesPerBeep = 70;
+    const int toggleDelayCycles = 50;   // Higher pitch = faster toggling
+    const int interBeepDelay_ms = 50;
+
+    for (int beep = 0; beep < numberOfBeeps; beep++) {
+        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
+            LATAbits.LATA11 ^= 1;
+            for (int delayCycle = 0; delayCycle < toggleDelayCycles; delayCycle++);
+        }
+        Delay_ms(interBeepDelay_ms);
     }
 }
 

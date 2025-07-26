@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADCmain.c adc.c timer1.c timer2.c
+SOURCEFILES_QUOTED_IF_SPACED=adc.c main.c buzzer.c timer1.c timer2.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADCmain.o.d ${OBJECTDIR}/adc.o.d ${OBJECTDIR}/timer1.o.d ${OBJECTDIR}/timer2.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/adc.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/buzzer.o.d ${OBJECTDIR}/timer1.o.d ${OBJECTDIR}/timer2.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADCmain.o ${OBJECTDIR}/adc.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
+OBJECTFILES=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
 
 # Source Files
-SOURCEFILES=ADCmain.c adc.c timer1.c timer2.c
+SOURCEFILES=adc.c main.c buzzer.c timer1.c timer2.c
 
 
 
@@ -95,17 +95,23 @@ MP_LINKER_FILE_OPTION=,--script=p30F4013.gld
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/ADCmain.o: ADCmain.c  .generated_files/flags/default/98da05198210a0bc474a4ad9b339afff207397a4 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/ADCmain.o.d 
-	@${RM} ${OBJECTDIR}/ADCmain.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ADCmain.c  -o ${OBJECTDIR}/ADCmain.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/ADCmain.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
-	
 ${OBJECTDIR}/adc.o: adc.c  .generated_files/flags/default/16f1cf5b4830c40d98df7f043a3ddc276cebb7bb .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/adc.o.d 
 	@${RM} ${OBJECTDIR}/adc.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  adc.c  -o ${OBJECTDIR}/adc.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/adc.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/main.o: main.c  .generated_files/flags/default/9e007f69dd3e7baecf30b873150de3bfbdb19a71 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/main.o.d 
+	@${RM} ${OBJECTDIR}/main.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/main.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/buzzer.o: buzzer.c  .generated_files/flags/default/4ddb0ee627ab495de6ac16f9d60a5de800103946 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/buzzer.o.d 
+	@${RM} ${OBJECTDIR}/buzzer.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  buzzer.c  -o ${OBJECTDIR}/buzzer.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/buzzer.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
 ${OBJECTDIR}/timer1.o: timer1.c  .generated_files/flags/default/4575c57620cbcc87b1dbb766673da40c581b6742 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 
@@ -120,17 +126,23 @@ ${OBJECTDIR}/timer2.o: timer2.c  .generated_files/flags/default/43591a46f3d51d6f
 	${MP_CC} $(MP_EXTRA_CC_PRE)  timer2.c  -o ${OBJECTDIR}/timer2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
 else
-${OBJECTDIR}/ADCmain.o: ADCmain.c  .generated_files/flags/default/a9111ac2de25f55b999986992e11f737e8975ec6 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/ADCmain.o.d 
-	@${RM} ${OBJECTDIR}/ADCmain.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ADCmain.c  -o ${OBJECTDIR}/ADCmain.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/ADCmain.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
-	
 ${OBJECTDIR}/adc.o: adc.c  .generated_files/flags/default/af2f08f7323b5479760ab48640684a2c48378db1 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/adc.o.d 
 	@${RM} ${OBJECTDIR}/adc.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  adc.c  -o ${OBJECTDIR}/adc.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/adc.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/main.o: main.c  .generated_files/flags/default/4efb96a3193933bf6e4ea6a94c9050c1e3da4d93 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/main.o.d 
+	@${RM} ${OBJECTDIR}/main.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/main.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/buzzer.o: buzzer.c  .generated_files/flags/default/7f8761e0403e056bf56034b7d1ec417f0b048498 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/buzzer.o.d 
+	@${RM} ${OBJECTDIR}/buzzer.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  buzzer.c  -o ${OBJECTDIR}/buzzer.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/buzzer.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
 ${OBJECTDIR}/timer1.o: timer1.c  .generated_files/flags/default/41c631ef8fdf061465792d2717f4beb269d0ecce .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 

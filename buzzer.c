@@ -20,7 +20,8 @@ extern void Delay_ms(int time);
  *   - Used to adjust the pitch of the beeping sound.
  ***************************************************************************/
 static void shortDelay(int cycles) {
-    for (int i = 0; i < cycles; i++);  // Simple for-loop delay
+    int i;
+    for (i = 0; i < cycles; i++);  // Simple for-loop delay
 }
 
 /***************************************************************************
@@ -38,12 +39,13 @@ void playBuzzerAlert(void) {
     const int toggleDelayCycles = 100;   // Delay between toggles (controls pitch)
     const int interBeepDelay_ms = 50;    // Delay between each beep (ms)
 
-    for (int beep = 0; beep < numberOfBeeps; beep++) {
-        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
-            LATAbits.LATA11 ^= 1;        // Toggle RA11 pin (on/off)
-            shortDelay(toggleDelayCycles); // Wait between toggles
+    int beep, toggle;
+    for (beep = 0; beep < numberOfBeeps; beep++) {
+        for (toggle = 0; toggle < togglesPerBeep; toggle++) {
+            LATAbits.LATA11 ^= 1;            // Toggle RA11 pin (on/off)
+            shortDelay(toggleDelayCycles);   // Wait between toggles
         }
-        Delay_ms(interBeepDelay_ms);     // Wait between beeps
+        Delay_ms(interBeepDelay_ms);         // Wait between beeps
     }
 }
 
@@ -61,8 +63,9 @@ void playBuzzerApprove(void) {
     const int toggleDelayCycles = 100;   // Normal pitch
     const int interBeepDelay_ms = 50;
 
-    for (int beep = 0; beep < numberOfBeeps; beep++) {
-        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
+    int beep, toggle;
+    for (beep = 0; beep < numberOfBeeps; beep++) {
+        for (toggle = 0; toggle < togglesPerBeep; toggle++) {
             LATAbits.LATA11 ^= 1;        // Toggle RA11 pin
             shortDelay(toggleDelayCycles);
         }
@@ -85,8 +88,9 @@ void playBuzzerDecline(void) {
     const int toggleDelayCycles = 50;    // Faster toggling → higher pitch
     const int interBeepDelay_ms = 50;
 
-    for (int beep = 0; beep < numberOfBeeps; beep++) {
-        for (int toggle = 0; toggle < togglesPerBeep; toggle++) {
+    int beep, toggle;
+    for (beep = 0; beep < numberOfBeeps; beep++) {
+        for (toggle = 0; toggle < togglesPerBeep; toggle++) {
             LATAbits.LATA11 ^= 1;        // Toggle RA11 pin
             shortDelay(toggleDelayCycles);
         }

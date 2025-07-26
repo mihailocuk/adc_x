@@ -15,10 +15,94 @@
 #include <stdlib.h>
 #include <p30fxxxx.h>
 #include "adc.h"
+#include "timer1.h"
+#include "timer2.h"
 
 
 _FOSC(CSW_FSCM_OFF & XT_PLL4);//instruction takt je isti kao i kristal 10MHz
 _FWDT(WDT_OFF);
+
+unsigned int brojac_ms = 0;
+unsigned int brojac_us = 0;
+
+void __attribute__((__interrupt__)) _T1Interrupt(void) // u main-u definishanje periode tako da bude ms
+{
+   	TMR1 =0;
+	brojac_ms++;//brojac milisekundi
+    IFS0bits.T1IF = 0;   
+}
+
+void __attribute__((__interrupt__)) _T2Interrupt(void) // u main-u definishanje periode tako da bude us
+{
+   	TMR2 =0;
+	brojac_us++;//brojac mikrosekundi
+    IFS0bits.T2IF = 0;   
+}
+
+void Delay_ms (int vreme)
+{
+    brojac_ms = 0;
+    while(brojac_ms < vreme);
+}
+
+void Delay_us (int vreme) // ZA GLCD
+{
+    brojac_us = 0;
+    while(brojac_us < vreme);
+}
+
+void pinInit() {
+    //SERVO//
+    ADPCFGbits.PCFG6 = 1;
+    ADPCFGbits.PCFG7 = 1;
+    TRISBbits.TRISB6 = 0;
+    TRISBbits.TRISB7 = 0;
+}
+
+// FUNKCIJE AKTUATORA //
+
+    void servo_device_0()
+    {
+        LATBbits.LATB6=1;
+        Delay_ms (1); 
+        LATBbits.LATB6=0;
+        Delay_ms (19);
+    }
+    void servo_device_180()
+    {
+        LATBbits.LATB6=1;
+        Delay_ms (2);
+        LATBbits.LATB6=0;
+        Delay_ms (18);
+    }
+
+    void servo_door_0()
+{
+    LATBbits.LATB7=1;
+    Delay_ms (1); 
+    LATBbits.LATB7=0;
+    Delay_ms (19);
+}
+    void servo_door_180()
+{
+    LATBbits.LATB7=1;
+    Delay_ms (2); 
+    LATBbits.LATB7=0;
+    Delay_ms (18);  
+}
+
+void buzzer()
+{
+    for(j = 0; j < 30; j++)
+    {
+        for(ton = 0; ton < 70; ton++)
+        {
+            LATAbits.LATA11 =~ LATAbits.LATA11;
+            for(duz = 0;duz < 100; duz++);                    
+        }
+        Delay_ms(50);
+    }
+}
 
 
 unsigned int sirovi0,sirovi1,sirovi2,sirovi3;
@@ -105,13 +189,17 @@ void WriteUART1dec2string(unsigned int data)
  */
 int main(int argc, char** argv) {
     
-    for(broj1=0;broj1<10000;broj1++);
+    pinInit();
+    initTIMER1(10000); // 10000 = 1 ms
+    initTIMER2(100); // 100 = 10 us
+    
+    for(broj1=0; broj1<10000; broj1++);
 
 		TRISBbits.TRISB0=1;
 		TRISBbits.TRISB1=1;
         TRISBbits.TRISB2=1;
 
-		for(broj=0;broj<60000;broj++);
+		for(broj=0; broj<60000; broj++);
 
 
 		initUART1();//inicijalizacija UART-a

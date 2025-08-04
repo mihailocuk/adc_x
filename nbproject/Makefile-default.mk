@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=adc.c main.c buzzer.c timer1.c timer2.c
+SOURCEFILES_QUOTED_IF_SPACED=adc.c main.c buzzer.c timer1.c timer2.c uart.c driverGLCD.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/adc.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/buzzer.o.d ${OBJECTDIR}/timer1.o.d ${OBJECTDIR}/timer2.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/driverGLCD.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/adc.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/buzzer.o.d ${OBJECTDIR}/timer1.o.d ${OBJECTDIR}/timer2.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/driverGLCD.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o
+OBJECTFILES=${OBJECTDIR}/adc.o ${OBJECTDIR}/main.o ${OBJECTDIR}/buzzer.o ${OBJECTDIR}/timer1.o ${OBJECTDIR}/timer2.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/driverGLCD.o
 
 # Source Files
-SOURCEFILES=adc.c main.c buzzer.c timer1.c timer2.c
+SOURCEFILES=adc.c main.c buzzer.c timer1.c timer2.c uart.c driverGLCD.c
 
 
 
@@ -125,6 +125,18 @@ ${OBJECTDIR}/timer2.o: timer2.c  .generated_files/flags/default/43591a46f3d51d6f
 	@${RM} ${OBJECTDIR}/timer2.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  timer2.c  -o ${OBJECTDIR}/timer2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
+${OBJECTDIR}/uart.o: uart.c  .generated_files/flags/default/8fcd409afc127ef6139d9996c33e918fd3a090af .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/uart.o.d 
+	@${RM} ${OBJECTDIR}/uart.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  uart.c  -o ${OBJECTDIR}/uart.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/uart.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/driverGLCD.o: driverGLCD.c  .generated_files/flags/default/982d7642060ecc6e51a4af1dcd1235a4706732 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/driverGLCD.o.d 
+	@${RM} ${OBJECTDIR}/driverGLCD.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  driverGLCD.c  -o ${OBJECTDIR}/driverGLCD.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/driverGLCD.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
 else
 ${OBJECTDIR}/adc.o: adc.c  .generated_files/flags/default/af2f08f7323b5479760ab48640684a2c48378db1 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
 	@${MKDIR} "${OBJECTDIR}" 
@@ -155,6 +167,18 @@ ${OBJECTDIR}/timer2.o: timer2.c  .generated_files/flags/default/10f33d5b852a11a6
 	@${RM} ${OBJECTDIR}/timer2.o.d 
 	@${RM} ${OBJECTDIR}/timer2.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  timer2.c  -o ${OBJECTDIR}/timer2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/timer2.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/uart.o: uart.c  .generated_files/flags/default/2473c2728cd19dd9d6bf6905a2613c4aebaef0ad .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/uart.o.d 
+	@${RM} ${OBJECTDIR}/uart.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  uart.c  -o ${OBJECTDIR}/uart.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/uart.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
+	
+${OBJECTDIR}/driverGLCD.o: driverGLCD.c  .generated_files/flags/default/53cdc23498e1e56aee76b0162a516ae62977f6f9 .generated_files/flags/default/dd5781400cd160fd8c7a7cb446eff14e5b884077
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/driverGLCD.o.d 
+	@${RM} ${OBJECTDIR}/driverGLCD.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  driverGLCD.c  -o ${OBJECTDIR}/driverGLCD.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/driverGLCD.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off   
 	
 endif
 

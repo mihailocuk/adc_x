@@ -11,7 +11,11 @@
 #include "timer1.h"             // Timer1 control
 #include "timer2.h"             // Timer2 control
 #include "buzzer.h"             // Buzzer control
+#include "uart.h"
+#include "driverGLCD.h"
 
+#define DRIVE_A PORTCbits.RC13
+#define DRIVE_B PORTCbits.RC14
 /***************************************************************************
  * Clock Explanation for dsPIC33 (XT + PLL4 Configuration)
  *
@@ -49,20 +53,69 @@ _FWDT(WDT_OFF);                 // Disable Watchdog Timer
 // Global variables for timing (updated by Timer1 and Timer2 ISRs)
 unsigned int counter_ms = 0;  // Millisecond counter (Timer1 must be initialized with initTIMER1(10000))
 unsigned int counter_us = 0;  // Microsecond counter (Timer2 must be initialized with initTIMER2(100))
+unsigned int temp0, temp1, temp2, temp3; // Temporary variables for ADC results
+unsigned int touch_X, touch_Y, mq3, fotores; // Raw ADC results
+unsigned int pir, pijan, warning; // PIR sensor state and alcohol detection
 
+unsigned int X, Y,x_vrednost, y_vrednost; // Touch coordinates
 
-// Timer1 ISR - triggered every 1ms
+const unsigned int X_min=220,X_max=3642,Y_min=520,Y_max=3450; // Touch calibration values
+/*const*/ unsigned int mq3_MAX, fotores_MAX; // Thresholds for MQ3 and photoresistor
+
+void pinInit() {
+// Initialize pins - GLCD IS TAKING PINS RB0-RB5 and RD0-RD3
+    // SERVO
+    TRISDbits.TRISD9 = 0;       // RD9 as output
+
+    // BUZZER
+    TRISAbits.TRISA11 = 0;      // A11 as output
+
+    // Sensors
+    ADPCFGbits.PCFG6 = 0; //Set RB7 as analog (FOTORESISTOR)
+    TRISBbits.TRISB6 = 1; // RB7 as input (FOTORESISTOR)
+
+    ADPCFGbits.PCFG7 = 0; //Set RB8 as analog (MQ3 sensor)
+    TRISBbits.TRISB7 = 1; // RB8 as input (MQ3 sensor)
+    
+    TRISDbits.TRISD8 = 1; // D8 as input (PIR sensor)
+    
+    // TOUCH
+    ADPCFGbits.PCFG8 = 0; //pin_B8_analogni
+    ADPCFGbits.PCFG9 = 0; //pin_B9_analogni
+    TRISCbits.TRISC13= 0;
+    TRISCbits.TRISC14= 0;
+    TRISBbits.TRISB8 = 1; //pin_B8_ulaz(touchX)
+    TRISBbits.TRISB9 = 1; //pin_B9_ulaz(touchY)
+
+}
+
+// Timer1 ISR - triggered every 1ms - defined in main()
 void __attribute__((__interrupt__)) _T1Interrupt(void) {
     TMR1 = 0;                   // Reset Timer1
     counter_ms++;               // Increment ms counter
     IFS0bits.T1IF = 0;          // Clear interrupt flag
 }
 
-// Timer2 ISR - triggered every 10us
+// Timer2 ISR - triggered every 1us - defined in main()
 void __attribute__((__interrupt__)) _T2Interrupt(void) {
     TMR2 = 0;                   // Reset Timer2
     counter_us++;               // Increment us counter
     IFS0bits.T2IF = 0;          // Clear interrupt flag
+}
+
+void __attribute__((__interrupt__)) _ADCInterrupt(void) {	
+    						
+    fotores=ADCBUF0; 
+	mq3=ADCBUF1;
+    touch_X=ADCBUF2;
+    touch_Y=ADCBUF3;	
+    										
+	temp0=fotores;  //Touch X
+	temp1=mq3;  //Touch Y
+    temp2=touch_X;  //fotoresistor	
+    temp3=touch_Y;      //MQ3 sensor
+    IFS0bits.ADIF = 0;
+
 }
 
 // Blocking delay using ms counter
@@ -77,165 +130,156 @@ void Delay_us(int time) {
     while (counter_us < time);
 }
 
-// Initialize pins RB6, RB7 for servo control
-void pinInit() {
-    // SERVO pins initialization
-    ADPCFGbits.PCFG6 = 1;       // Set RB6 as digital
-    ADPCFGbits.PCFG7 = 1;       // Set RB7 as digital
-    TRISBbits.TRISB6 = 0;       // RB6 as output
-    TRISBbits.TRISB7 = 0;       // RB7 as output
-
-    // BUZZER pin initialization
-    TRISAbits.TRISA11 = 0;      // A11 as output
-}
 
 // SERVO control functions (by PWM simulation using delays)
-void servo_device_0() {
-    LATBbits.LATB6 = 1;
+void servo_0() {
+    LATDbits.LATD9 = 1;
     Delay_ms(1);
-    LATBbits.LATB6 = 0;
+    LATDbits.LATD9 = 0;
     Delay_ms(19);
 }
 
-void servo_device_180() {
-    LATBbits.LATB6 = 1;
+void servo_180() {
+    LATDbits.LATD9 = 1;
     Delay_ms(2);
-    LATBbits.LATB6 = 0;
+    LATDbits.LATD9 = 0;
     Delay_ms(18);
 }
 
-void servo_door_0() {
-    LATBbits.LATB7 = 1;
-    Delay_ms(1);
-    LATBbits.LATB7 = 0;
-    Delay_ms(19);
+void pir_senzor() {
+    if(PORTDbits.RD8==1) {
+        pir=1; 
+    }
+    else {
+        pir=0;
+    }
 }
 
-void servo_door_180() {
-    LATBbits.LATB7 = 1;
-    Delay_ms(2);
-    LATBbits.LATB7 = 0;
-    Delay_ms(18);
+void mq3_sensor() {
+    if(temp1>0 && temp1<mq3_MAX) {
+        pijan=0;
+    }
+    else {
+        pijan=1;
+    }
 }
 
-// ADC result variables
-unsigned int sirovi0, sirovi1, sirovi2;
-unsigned int broj, broj1, broj2, tempRX;
+void fotoresistor(){
+    if(temp0>0 && temp0<fotores_MAX) {
+        warning=0; // Normal light level
+    }
+    else {
+        warning=1; // Low light level
+    }
+}
 
-/***************************************************************************
-* Function Name    : initUART1
-* Description      : Initializes UART1 module for RS232 communication 
-*                    with 9600 baud rate and alternate I/O pins.
-* Parameters       : None
-* Return Value     : None
-***************************************************************************/
-void initUART1(void)
+void Touch_Panel (void)
 {
-    U1BRG = 0x0040;             // Baud rate generator for 9600 baud @ Fcy = 10 MHz
-    U1MODEbits.ALTIO = 1;       // Use alternate I/O pins for TX/RX (U1ATX, U1ARX)
-    IEC0bits.U1RXIE = 1;        // Enable UART1 receive interrupt
-    U1STA &= 0xFFFC;            // Clear status register bits (URXISEL)
-    U1MODEbits.UARTEN = 1;      // Enable UART1 module
-    U1STAbits.UTXEN = 1;        // Enable UART1 transmitter
-}
+	DRIVE_A = 1;  
+	DRIVE_B = 0;
+    
+     LATCbits.LATC13=1;
+     LATCbits.LATC14=0;
 
-// UART RX interrupt (currently unused)
-void __attribute__((__interrupt__)) _U1RXInterrupt(void) {
-    IFS0bits.U1RXIF = 0;        // Clear interrupt flag
-    // tempRX = U1RXREG;        // Read received data if needed
-}
+	Delay_ms(50); 				
+	
+	x_vrednost = temp2;	
 
-// ADC interrupt handler
-void __attribute__((__interrupt__)) _ADCInterrupt(void) {
-    sirovi0 = ADCBUF0;          // Read analog value from AN0 (RB0)
-    sirovi1 = ADCBUF1;          // Read from AN1 (RB1)
-    sirovi2 = ADCBUF2;          // Read from AN2 (RB2)
-    IFS0bits.ADIF = 0;          // Clear ADC interrupt flag
-}
+	
+     LATCbits.LATC13=0;
+     LATCbits.LATC14=1;
+	DRIVE_A = 0;  
+	DRIVE_B = 1;
 
-/*********************************************************************
-* Function Name    : WriteUART1
-* Description      : Sends a single byte via UART1 by writing it 
-*                    into the U1TXREG register.
-* Parameters       : data - The byte to be sent (only LSB is used 
-*                    if UART is in 8-bit mode).
-* Return Value     : None
-*********************************************************************/
-void WriteUART1(unsigned int data)
-{
-    while (U1STAbits.TRMT == 0); // Wait until transmit shift register is empty
-
-    if (U1MODEbits.PDSEL == 3)   // If UART is in 9-bit mode
-        U1TXREG = data;
-    else                         // Otherwise, send lower 8 bits
-        U1TXREG = data & 0xFF;
-}
-
-
-/***********************************************************************
-* Function Name    : WriteUART1dec2string
-* Description      : Sends a 4-digit number over UART1 by converting 
-*                    each digit into ASCII and sending it one-by-one.
-* Parameters       : data - The number to be sent (0–9999)
-* Return Value     : None
-************************************************************************/
-void WriteUART1dec2string(unsigned int data)
-{
-    unsigned char digit;
-
-    digit = data / 1000;
-    WriteUART1(digit + '0');      // Thousands digit
-    data = data % 1000;
-
-    digit = data / 100;
-    WriteUART1(digit + '0');      // Hundreds digit
-    data = data % 100;
-
-    digit = data / 10;
-    WriteUART1(digit + '0');      // Tens digit
-
-    WriteUART1((data % 10) + '0'); // Units digit
+	Delay_ms(50); 
+    
+	y_vrednost = temp3;
+	
+    X=(x_vrednost-161)*0.03629;
+	Y= ((y_vrednost-500)*0.020725);
 }
 
 
 // MAIN PROGRAM
 int main(int argc, char** argv) {
-    pinInit();                     // Init servo pins
-    initTIMER1(10000);            // 1 ms period (10,000 counts at 10 MHz)
-    initTIMER2(10);              // 1 us period (100 counts at 10 MHz)
+    pinInit();                  // Initialize pins
+    ConfigureLCDPins();         // Initialize LCD pins
+    initTIMER1(10000);          // 1 ms period (10,000 counts at 10 MHz)
+    initTIMER2(10);             // 1 us period (100 counts at 10 MHz)
 
-    for (broj1 = 0; broj1 < 10000; broj1++); // Startup delay
+    Delay_ms(1000);
 
-    TRISBbits.TRISB0 = 1;         // AN0 as input
-    TRISBbits.TRISB1 = 1;         // AN1 as input
-    TRISBbits.TRISB2 = 1;         // AN2 as input
+    GLCD_LcdInit();             // Initialize GLCD
+    Delay_ms(100);              // Wait for GLCD to stabilize
+    GLCD_ClrScr();              // Clear GLCD    
+    initUART1();                // Initialize
+    ADCinit();                  // Initialize ADC
+    ADCON1bits.ADON = 1;        // Start ADC module
 
-    for (broj = 0; broj < 60000; broj++);   // Additional delay
-
-    initUART1();                  // Start UART
-    ADCinit();                    // Initialize ADC
-    ADCON1bits.ADON = 1;         // Start ADC module
+    servo_180();
 
     while (1) {
-        WriteUART1(' ');
-        WriteUART1dec2string(sirovi0);      // Send AN0 value
-        for (broj2 = 0; broj2 < 1000; broj2++);
+        // 1. Provera PIR senzora
+        pir_senzor();
+        if (pir == 1) {
+            playBuzzerApprove();        // Zvučni signal - detekcija pokreta
 
-        WriteUART1(' ');
-        for (broj2 = 0; broj2 < 1000; broj2++);
-        WriteUART1dec2string(sirovi1);      // Send AN1 value
-        for (broj2 = 0; broj2 < 1000; broj2++);
+            servo_0();                  // Rotiraj servo ka korisniku
+            Delay_ms(500);
+            playBuzzerApprove();      // Zvučni signal - pozicioniran
 
-        WriteUART1(' ');
-        WriteUART1dec2string(sirovi2);      // Send AN2 value
-        for (broj2 = 0; broj2 < 1000; broj2++);
+            
 
-        WriteUART1(13);                     // Carriage return
-        WriteUART1('s');                    // Send 's' as end-of-frame marker
+            
+            void funkcija(){//ispis na glcd
+            mq3_sensor();
+            if(pijan==1){
+                playBuzzerDecline();
+                //ispis na glcd
+                LcdSelectSide(RIGHT);
+                GLCD_Rectangle(0, 63, 0, 63);
+                Delay_us(40);
+                GoToXY(22, 30);
+                GLCD_Printf("Try Again?"); // Ispis na GLCD
+                LcdSelectSide(LEFT);
+                GLCD_Rectangle(0, 63, 0, 63);
+                GoToXY(22, 30);
+                GLCD_Printf("Cancel"); // Ispis na GLCD
+                Delay_us(40);
+                Touch_Panel(); 
+                if(X>0 && X<64 && Y>0 && Y<64) {
+                    playBuzzerApprove();
+                    GLCD_ClrScr();
+                    funkcija();
+                }
+                if(X>64 && X<128 && Y>0 && Y<64) {
+                    GLCD_ClrScr();
+                    GoToXY(32, 29);
+                    GLCD_Printf("Access Denied");
+                    Delay_ms(1000);
+                    GLCD_ClrScr();
+                    // Reset servo position
+                    servo_180();
+                }
+                //pristup odbijen, pokusaj ponovo, cancel - sve na glcdu
+            }
 
-        for (broj1 = 0; broj1 < 1000; broj1++)
-        for (broj2 = 0; broj2 < 3000; broj2++); // Delay
+            if(pijan==0){
+                playBuzzerApprove();
+                GLCD_ClrScr();
+                GoToXY(32, 29);
+                GLCD_Printf("Access Granted");
+                playBuzzerApprove();
+                Delay_ms(1000);
+                servo_180();
+            }
+        }
+
+        }
+
+        Delay_ms(100); // mala pauza u petlji da ne lupa stalno
     }
 
     return (EXIT_SUCCESS);
 }
+    

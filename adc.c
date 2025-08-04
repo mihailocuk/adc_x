@@ -116,7 +116,7 @@ ADCON3:
 bit 15-13 Unimplemented: Read as ?0?
 bit 12-8 SAMC<4:0>: Auto Sample Time bits
 	11111 = 31 TAD
-	·····
+	ï¿½ï¿½ï¿½ï¿½ï¿½
 	00001 = 1 TAD
 	00000 = 0 TAD
 bit 7 ADRC: A/D Conversion Clock Source bit
@@ -125,7 +125,7 @@ bit 7 ADRC: A/D Conversion Clock Source bit
 bit 6 Unimplemented: Read as ?0?
 bit 5-0 ADCS<5:0>: A/D Conversion Clock Select bits
 	111111 = TCY/2 ? (ADCS<5:0> + 1) = 32 ? TCY
-	······
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	000001 = TCY/2 ? (ADCS<5:0> + 1) = TCY
 	000000 = TCY/2 ? (ADCS<5:0> + 1) = TCY/2*/
 
@@ -149,7 +149,7 @@ bit 4 CH0NA: Channel 0 Negative Input Select for MUX A Multiplexer Setting bit
 	1111 = Channel 0 positive input is AN15
 	1110 = Channel 0 positive input is AN14
 	1101 = Channel 0 positive input is AN13
-	·····
+	ï¿½ï¿½ï¿½ï¿½ï¿½
 	0001 = Channel 0 positive input is AN1
 	0000 = Channel 0 positive input is AN0
 */
@@ -174,7 +174,7 @@ bit 15-0 CSSL<15:0>: A/D Input Pin Scan Selection bits
 	1 = Select ANx for input scan
 	0 = Skip ANx for input scan*/
 //ADCSSL=0b0001111111111111;
-  ADCSSL=0b0000000000000111;
+  ADCSSL=0b0000001111000000;
 ADCON1bits.ASAM=1;
 
 IFS0bits.ADIF=1;

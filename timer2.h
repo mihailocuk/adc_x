@@ -72,7 +72,7 @@ void WriteTimer2( unsigned int timer);
 /* Config Int Timer1 */
 void ConfigIntTimer2(unsigned int config);
 
-
+void initTIMER2(int period);
 
 
 #endif
